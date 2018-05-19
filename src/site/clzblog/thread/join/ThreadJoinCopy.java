@@ -1,4 +1,4 @@
-package site.clzblog.thread;
+package site.clzblog.thread.join;
 
 /**
  * @Description This is thread join copy(Create thread use lambada)

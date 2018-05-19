@@ -1,4 +1,4 @@
-package site.clzblog.thread;
+package site.clzblog.thread.anonymous;
 
 /**
  * @Description

@@ -1,4 +1,4 @@
-package site.clzblog.secure.thread;
+package site.clzblog.thread.secure;
 
 /**
  * @Description 多线程模拟抢火车票发生的并发，解决方案就是加上同步代码块synchronized 或者直接在方法前面加上（同步函数使用的是this锁）
