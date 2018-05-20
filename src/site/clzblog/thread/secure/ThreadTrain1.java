@@ -63,7 +63,7 @@ public class ThreadTrain1 implements Runnable {
         Thread thread2 = new Thread(threadTrain, "Window2");
         thread1.start();
         Thread.sleep(40);
-        threadTrain.flag = true;
+        threadTrain.flag = false;
         thread2.start();
     }
 }
