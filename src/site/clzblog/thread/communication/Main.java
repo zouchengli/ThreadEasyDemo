@@ -1,4 +1,4 @@
-package site.clzblog.communication;
+package site.clzblog.thread.communication;
 
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
