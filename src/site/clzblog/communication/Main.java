@@ -1,5 +1,9 @@
 package site.clzblog.communication;
 
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
 /**
  * This is person class
  */
@@ -7,6 +11,7 @@ class Person {
     public String name;
     public String gender;
     public Boolean flag = false;
+    Lock lock = new ReentrantLock();
 }
 
 /**
@@ -14,22 +19,24 @@ class Person {
  */
 class Producer extends Thread {
     Person person;
+    Condition condition;
 
-    public Producer(Person person) {
+    public Producer(Person person, Condition condition) {
         this.person = person;
+        this.condition = condition;
     }
 
     @Override
     public void run() {
         int count = 0;
         while (true) {
-            synchronized (person) {
+            /*synchronized (person) {*/
+            person.lock.lock();
+            try {
                 if (person.flag) {
-                    try {
-                        person.wait();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+                    //person.wait();
+                    condition.await();
+
                 }
                 if (count == 0) {
                     person.name = "Jack";
@@ -40,8 +47,14 @@ class Producer extends Thread {
                 }
                 count = (count + 1) % 2;
                 person.flag = true;
-                person.notify();
+                condition.signal();
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                person.lock.unlock();
             }
+                /*person.notify();
+            }*/
         }
     }
 }
@@ -51,26 +64,33 @@ class Producer extends Thread {
  */
 class Consumer extends Thread {
     Person person;
+    Condition condition;
 
-    public Consumer(Person person) {
+    public Consumer(Person person, Condition condition) {
         this.person = person;
+        this.condition = condition;
     }
 
     @Override
     public void run() {
         while (true) {
-            synchronized (person) {
+            person.lock.lock();
+            /*synchronized (person) {*/
+            try {
                 if (!person.flag) {
-                    try {
-                        person.wait();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+                    //person.wait();
+                    condition.await();
                 }
                 System.out.println(person.name + "," + person.gender);
                 person.flag = false;
-                person.notify();
+                condition.signal();
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                person.lock.unlock();
             }
+               /* person.notify();
+            }*/
         }
     }
 }
@@ -83,8 +103,9 @@ class Consumer extends Thread {
 public class Main {
     public static void main(String[] args) {
         Person person = new Person();
-        Producer producer = new Producer(person);
-        Consumer consumer = new Consumer(person);
+        Condition condition = person.lock.newCondition();
+        Producer producer = new Producer(person, condition);
+        Consumer consumer = new Consumer(person, condition);
         producer.start();
         consumer.start();
     }
