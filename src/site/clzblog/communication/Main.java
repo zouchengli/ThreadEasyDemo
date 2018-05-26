@@ -6,6 +6,7 @@ package site.clzblog.communication;
 class Person {
     public String name;
     public String gender;
+    public Boolean flag = false;
 }
 
 /**
@@ -23,6 +24,13 @@ class Producer extends Thread {
         int count = 0;
         while (true) {
             synchronized (person) {
+                if (person.flag) {
+                    try {
+                        person.wait();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
                 if (count == 0) {
                     person.name = "Jack";
                     person.gender = "Male";
@@ -31,6 +39,8 @@ class Producer extends Thread {
                     person.gender = "Female";
                 }
                 count = (count + 1) % 2;
+                person.flag = true;
+                person.notify();
             }
         }
     }
@@ -50,7 +60,16 @@ class Consumer extends Thread {
     public void run() {
         while (true) {
             synchronized (person) {
+                if (!person.flag) {
+                    try {
+                        person.wait();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
                 System.out.println(person.name + "," + person.gender);
+                person.flag = false;
+                person.notify();
             }
         }
     }
